@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from 'bcrypt';
 import { createToken, decodeToken } from "../config/jwt.js";
+// import { toiUuHinh } from "./uploadController.js";
 
 const prisma = new PrismaClient()
 //            
@@ -148,5 +149,22 @@ export const updateUser = async (req, res) => {
 }
 
 export const uploadAvatar = async (req, res) => {
+    let file = req.file
+    let { token } = req.headers;
+    let infoUser = decodeToken(token);
+    let { nguoi_dung_id } = infoUser.data.checkEmail;
+    // let imgBase = await toiUuHinh(file)
+    let findUser = await prisma.nguoi_dung.findFirst({
+        where: {
+            nguoi_dung_id: nguoi_dung_id
+        }
+    })
+    await prisma.nguoi_dung.update({
+        where: {
+            nguoi_dung_id: nguoi_dung_id
+        },
+        data: { ...findUser, anh_dai_dien: file.filename }
+    })
+    res.send("upload avatar thành công")
 
 }
